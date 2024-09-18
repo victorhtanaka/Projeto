@@ -65,6 +65,7 @@ public class Main {
         FloodFillService floodFillService = new FloodFillService(img);
         floodFillService.stackFill(starterPixel[0], starterPixel[1], selectedColor.getRGB());
         floodFillService.saveImg("png", "src//test2.png");
+        
         System.out.println("Flood fill completed.");
     }
 }
