@@ -32,10 +32,36 @@ public class Main {
         stack = new DynamicStack<int[]>(4);
 
         stackFill(pixelX, pixelY, img.getRGB(pixelX, pixelY), selectedColor.getRGB());
-        
+        queueFill(pixelX, pixelY, img.getRGB(pixelX, pixelY), selectedColor.getRGB());
     }
 
     private static void stackFill(int x, int y, int targetColor, int fillColor) {
+        if (targetColor == fillColor) return;
+
+        stack.push(new int[]{x, y});
+
+        while (!stack.isEmpty()) {
+            int[] point = stack.pop();
+            int px = point[0];
+            int py = point[1];
+
+            if (px < 0 || px >= img.getWidth() || py < 0 || py >= img.getHeight()) {
+                continue;
+            } else {
+                if (img.getRGB(px, py) == targetColor) {
+                    System.out.println("Ponto: " + px + ", " + py);
+                    img.setRGB(px, py, fillColor);
+
+                    stack.push(new int[]{px + 1, py});
+                    stack.push(new int[]{px - 1, py});
+                    stack.push(new int[]{px, py + 1});
+                    stack.push(new int[]{px, py - 1});
+                }
+            }
+        }
+    }
+
+    private static void queueFill(int x, int y, int targetColor, int fillColor) {
         if (targetColor == fillColor) return;
 
         stack.push(new int[]{x, y});
