@@ -1,15 +1,16 @@
+package Services;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-public class ColorChooser extends JPanel implements ChangeListener {
+public class ColorPickerService extends JPanel implements ChangeListener {
 
     protected JColorChooser tcc;
     protected Color selectedColor;
     protected JButton confirmButton;
     protected JFrame frame;
 
-    public ColorChooser(JFrame frame) {
+    public ColorPickerService(JFrame frame) {
         super(new BorderLayout());
         this.frame = frame;
 
@@ -38,7 +39,7 @@ public class ColorChooser extends JPanel implements ChangeListener {
 
     public static Color showColorChooser() {
         JFrame frame = new JFrame("Escolher Cor");
-        ColorChooser chooser = new ColorChooser(frame);
+        ColorPickerService chooser = new ColorPickerService(frame);
 
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setContentPane(chooser);
