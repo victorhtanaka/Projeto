@@ -2,20 +2,21 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Scanner;
-import java.util.Stack;
-
 import javax.imageio.ImageIO;
+import Stack.DynamicStack;
 
 public class Main {
     private static BufferedImage img;
-    private static Stack<int[]> stack;
-    private static boolean[][] processed;
+    private static DynamicStack<int[]> stack;
 
     public static void main(String[] args) throws Exception {
         Scanner read = new Scanner(System.in);
 
         img = ImageIO.read(new File("src//test.png"));
-        if (img == null) throw new Exception("Image not found");
+        if (img == null) {
+            read.close();
+            throw new Exception("Image not found");
+        }
 
         Color selectedColor = ColorChooser.showColorChooser();
         System.out.println("Cor escolhida: " + selectedColor);
@@ -26,12 +27,12 @@ public class Main {
         System.out.println("A partir de qual pixel y deseja preencher: ");
         int pixelY = read.nextInt();
 
-        Color colorToFill = new Color(img.getRGB(pixelX, pixelY));
+        read.close();
 
-        processed = new boolean[img.getWidth()][img.getHeight()];
-        stack = new Stack<>();
+        stack = new DynamicStack<int[]>(4);
 
-        stackFill(pixelX, pixelY, colorToFill.getRGB(), selectedColor.getRGB());
+        stackFill(pixelX, pixelY, img.getRGB(pixelX, pixelY), selectedColor.getRGB());
+        
     }
 
     private static void stackFill(int x, int y, int targetColor, int fillColor) {
@@ -41,28 +42,22 @@ public class Main {
 
         while (!stack.isEmpty()) {
             int[] point = stack.pop();
-            int px = point[0], py = point[1];
+            int px = point[0];
+            int py = point[1];
 
-            if (px < 0 || px >= img.getWidth() || py < 0 || py >= img.getHeight() || processed[px][py]) {
+            if (px < 0 || px >= img.getWidth() || py < 0 || py >= img.getHeight()) {
                 continue;
+            } else {
+                if (img.getRGB(px, py) == targetColor) {
+                    System.out.println("Ponto: " + px + ", " + py);
+                    img.setRGB(px, py, fillColor);
+
+                    stack.push(new int[]{px + 1, py});
+                    stack.push(new int[]{px - 1, py});
+                    stack.push(new int[]{px, py + 1});
+                    stack.push(new int[]{px, py - 1});
+                }
             }
-
-            if (img.getRGB(px, py) == targetColor) {
-                img.setRGB(px, py, fillColor);
-                processed[px][py] = true;
-
-                // Empilha vizinhos apenas se não processados
-                pushIfValid(px + 1, py, targetColor);
-                pushIfValid(px - 1, py, targetColor);
-                pushIfValid(px, py + 1, targetColor);
-                pushIfValid(px, py - 1, targetColor);
-            }
-        }
-    }
-
-    private static void pushIfValid(int x, int y, int targetColor) {
-        if (x >= 0 && x < img.getWidth() && y >= 0 && y < img.getHeight() && !processed[x][y] && img.getRGB(x, y) == targetColor) {
-            stack.push(new int[]{x, y});
         }
     }
 }
