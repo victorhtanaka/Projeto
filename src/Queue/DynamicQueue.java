@@ -1,7 +1,8 @@
 package Queue;
 
-public class CircularQueue<T> extends Queue<T> {
-    public CircularQueue(int size) {
+public class DynamicQueue<T> extends Queue<T> {
+
+    public DynamicQueue(int size) {
         super(size);
     }
 
@@ -9,8 +10,11 @@ public class CircularQueue<T> extends Queue<T> {
     public void store(T data) {
         try {
             if (this.top == this.data.length - 1) {
-                this.top = -1;
-                this.data[++top] = data;
+                T[] temp = (T[]) new Object[this.data.length * 2];
+                for (int i = 0; i < this.data.length; i++) {
+                    temp[i] = this.data[i];
+                }
+                this.data = temp;
             }
             this.data[++top] = data;
         } catch (Exception e) {
@@ -21,13 +25,8 @@ public class CircularQueue<T> extends Queue<T> {
     @Override
     public T retrieve() {
         try {
-            if (this.top == this.base) {
-                return this.data[base];
-            }
-            if (this.base == this.data.length - 1) {
-                this.base = -1;
-
-                return this.data[++base];
+            if (isEmpty()) {
+                throw new IllegalStateException("Queue is empty");
             }
 
             return this.data[++base];
