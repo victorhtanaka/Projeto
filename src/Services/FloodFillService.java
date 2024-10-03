@@ -1,9 +1,9 @@
 package Services;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
-
 import javax.imageio.ImageIO;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import Queue.DynamicQueue;
 import Stack.DynamicStack;
@@ -12,10 +12,14 @@ public class FloodFillService {
     private BufferedImage img;
     private DynamicStack<int[]> stack;
     private DynamicQueue<int[]> queue;
-    private int frame = 0;
 
     public FloodFillService(BufferedImage img) {
         this.img = img;
+        this.stack = new DynamicStack<int[]>(4);
+        this.queue = new DynamicQueue<int[]>(4);
+    }
+
+    public FloodFillService() {
         this.stack = new DynamicStack<int[]>(4);
         this.queue = new DynamicQueue<int[]>(4);
     }
@@ -24,39 +28,24 @@ public class FloodFillService {
         return this.img;
     }
 
+    public void setImg(BufferedImage img) {
+        this.img = img;
+    }
+
+    public int getImgWidth() {
+        return this.img.getWidth();
+    }
+
+    public int getImgHeight() {
+        return this.img.getHeight();
+    }
+
     public void saveImg(String fileType, String path) {
         if (img != null) {
             try {
                 ImageIO.write(this.img, fileType, new File(path));
             } catch (Exception e) {
                 e.printStackTrace();
-            }
-        }
-    }
-
-    public void stackFill(int x, int y, int fillColor) {
-        int targetColor = img.getRGB(x, y);
-        if (targetColor == fillColor) return;
-
-        stack.push(new int[]{x, y});
-
-        while (!stack.isEmpty()) {
-            int[] point = stack.pop();
-            int px = point[0];
-            int py = point[1];
-
-            if (px < 0 || px >= img.getWidth() || py < 0 || py >= img.getHeight()) {
-                continue;
-            } else {
-                if (img.getRGB(px, py) == targetColor) {
-                    System.out.println("Ponto: " + px + ", " + py);
-                    img.setRGB(px, py, fillColor);
-
-                    stack.push(new int[]{px + 1, py});
-                    stack.push(new int[]{px - 1, py});
-                    stack.push(new int[]{px, py + 1});
-                    stack.push(new int[]{px, py - 1});
-                }
             }
         }
     }
@@ -75,21 +64,21 @@ public class FloodFillService {
 
             if (px < 0 || px >= img.getWidth() || py < 0 || py >= img.getHeight()) {
                 continue;
-            } else {
-                if (img.getRGB(px, py) == targetColor) {
-                    System.out.println("Ponto: " + px + ", " + py);
-                    img.setRGB(px, py, fillColor);
-
-                    queue.store(new int[]{px + 1, py});
-                    queue.store(new int[]{px - 1, py});
-                    queue.store(new int[]{px, py + 1});
-                    queue.store(new int[]{px, py - 1});
-                }
             }
+
+            if (img.getRGB(px, py) == targetColor) {
+                img.setRGB(px, py, fillColor);
+
+                queue.store(new int[]{px + 1, py});
+                queue.store(new int[]{px - 1, py});
+                queue.store(new int[]{px, py + 1});
+                queue.store(new int[]{px, py - 1});
+            }
+            
         }
     }
 
-    public void stackFill(int x, int y, int fillColor, boolean generateAnimation) {
+    public void stackFill(int x, int y, int fillColor) {
         int targetColor = img.getRGB(x, y);
         if (targetColor == fillColor) return;
 
@@ -102,25 +91,20 @@ public class FloodFillService {
 
             if (px < 0 || px >= img.getWidth() || py < 0 || py >= img.getHeight()) {
                 continue;
-            } else {
-                if (img.getRGB(px, py) == targetColor) {
-                    img.setRGB(px, py, fillColor);
+            } 
 
-                    if (generateAnimation) {
-                        addframe(img);
-                    }
+            if (img.getRGB(px, py) == targetColor) {
+                img.setRGB(px, py, fillColor);
 
-                    stack.push(new int[]{px + 1, py});
-                    stack.push(new int[]{px - 1, py});
-                    stack.push(new int[]{px, py + 1});
-                    stack.push(new int[]{px, py - 1});
-                }
+                stack.push(new int[]{px + 1, py});
+                stack.push(new int[]{px - 1, py});
+                stack.push(new int[]{px, py + 1});
+                stack.push(new int[]{px, py - 1});
             }
         }
-        this.frame = 0;
     }
 
-    public void queueFill(int x, int y, int fillColor, boolean generateAnimation) {
+    public void queueFillWithAnimation(int x, int y, int fillColor, JPanel panel) {
         int targetColor = img.getRGB(x, y);
         if (targetColor == fillColor) return;
 
@@ -133,26 +117,56 @@ public class FloodFillService {
 
             if (px < 0 || px >= img.getWidth() || py < 0 || py >= img.getHeight()) {
                 continue;
-            } else {
-                if (img.getRGB(px, py) == targetColor) {
-                    img.setRGB(px, py, fillColor);
-                    
-                    if (generateAnimation) {
-                        addframe(img);
-                    }
+            }
 
-                    queue.store(new int[]{px + 1, py});
-                    queue.store(new int[]{px - 1, py});
-                    queue.store(new int[]{px, py + 1});
-                    queue.store(new int[]{px, py - 1});
+            if (img.getRGB(px, py) == targetColor) {
+                img.setRGB(px, py, fillColor);
+
+                queue.store(new int[]{px + 1, py});
+                queue.store(new int[]{px - 1, py});
+                queue.store(new int[]{px, py + 1});
+                queue.store(new int[]{px, py - 1});
+
+                SwingUtilities.invokeLater(() -> panel.repaint());
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
         }
-        this.frame = 0;
     }
 
-    private void addframe(BufferedImage img) {
-        saveImg("png", "src//Frames/frame" + this.frame + ".png");
-        this.frame++;
+    public void stackFillWithAnimation(int x, int y, int fillColor, JPanel panel) {
+        int targetColor = img.getRGB(x, y);
+        if (targetColor == fillColor) return;
+
+        stack.push(new int[]{x, y});
+
+        while (!stack.isEmpty()) {
+            int[] point = stack.pop();
+            int px = point[0];
+            int py = point[1];
+
+            if (px < 0 || px >= img.getWidth() || py < 0 || py >= img.getHeight()) {
+                continue;
+            }
+
+            if (img.getRGB(px, py) == targetColor) {
+                img.setRGB(px, py, fillColor);
+
+                stack.push(new int[]{px + 1, py});
+                stack.push(new int[]{px - 1, py});
+                stack.push(new int[]{px, py + 1});
+                stack.push(new int[]{px, py - 1});
+
+                SwingUtilities.invokeLater(() -> panel.repaint());
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
