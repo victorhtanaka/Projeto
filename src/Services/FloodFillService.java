@@ -109,7 +109,7 @@ public class FloodFillService {
         if (targetColor == fillColor) return;
 
         queue.store(new int[]{x, y});
-
+        int num = 0;
         while (!queue.isEmpty()) {
             int[] point = queue.retrieve();
             int px = point[0];
@@ -128,11 +128,15 @@ public class FloodFillService {
                 queue.store(new int[]{px, py - 1});
 
                 SwingUtilities.invokeLater(() -> panel.repaint());
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                if (num % 10 == 0) {
+                    num = 0;
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
+                num++;
             }
         }
     }
@@ -142,7 +146,7 @@ public class FloodFillService {
         if (targetColor == fillColor) return;
 
         stack.push(new int[]{x, y});
-
+        int num = 0;
         while (!stack.isEmpty()) {
             int[] point = stack.pop();
             int px = point[0];
@@ -161,11 +165,15 @@ public class FloodFillService {
                 stack.push(new int[]{px, py - 1});
 
                 SwingUtilities.invokeLater(() -> panel.repaint());
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                if (num % 10 == 0) {
+                    num = 0;
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
+                num++;
             }
         }
     }
